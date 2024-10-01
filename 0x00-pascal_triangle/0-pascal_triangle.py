@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-
+"""
+0-pascal_triangle.py
+"""
 def pascal_triangle(n):
     """
     Returns a list of lists representing Pascal's Triangle up to n rows.
