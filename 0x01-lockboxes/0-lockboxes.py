@@ -3,7 +3,7 @@
 
 
 def canUnlockAll(boxes):
-    ''' 
+    '''
         CanUnockAll
         ([boxes]): a list of list
     '''
