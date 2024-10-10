@@ -1,22 +1,28 @@
 #!/usr/bin/python3
-"""
-canUnlocAll(boxes)
-"""
+''' lockbox module '''
 
 
 def canUnlockAll(boxes):
+    ''' 
+        CanUnockAll
+        ([boxes]): a list of list
+    '''
 
-    unlocked = {0}
-    keys = set(boxes[0])
-    to_check = [0]
-
-    while to_check:
-        current_box = to_check.pop()
-
-        for key in boxes[current_box]:
-            if key < len(boxes) and key not in unlocked:
-                unlocked.add(key)
-                to_check.append(key)
-                keys.update(boxes[key]) 
-
-    return len(unlocked) == len(boxes)
+    # initialize a list of unlocked boxes
+    unlocked = [False] * len(boxes)
+    # set the first box oprn
+    unlocked[0] = True
+    # iterate over the boxes
+    for index, box in enumerate(boxes):
+        # check if the box is unlocked
+        if unlocked[index]:
+            # get the keys in the box
+            for index, key in enumerate(box):
+                # set the box with a found key to open
+                if key < len(unlocked):
+                    unlocked[key] = True
+                    # get the keys at the box that has been opened
+                    # set the boxes with the keys to be open
+                    for i in boxes[key]:
+                        unlocked[i] = True
+    return all(unlocked)
