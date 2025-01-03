@@ -1,38 +1,49 @@
 #!/usr/bin/python3
-'''A script that reads stdin line by line and computes metrics'''
-
+"""
+Log Parsing script that reads stdin and computes metrics.
+"""
 
 import sys
+import signal
 
-cache = {'200': 0, '301': 0, '400': 0, '401': 0,
-         '403': 0, '404': 0, '405': 0, '500': 0}
-total_size = 0
-counter = 0
+# Initialize metrics
+total_file_size = 0
+status_code_counts = {}
+valid_status_codes = ['200', '301', '400', '401', '403', '404', '405', '500']
+line_count = 0
+
+def print_stats():
+    """Prints the metrics."""
+    print(f"File size: {total_file_size}")
+    for code in sorted(status_code_counts):
+        print(f"{code}: {status_code_counts[code]}")
 
 try:
     for line in sys.stdin:
-        line_list = line.split(" ")
-        if len(line_list) > 4:
-            code = line_list[-2]
-            size = int(line_list[-1])
-            if code in cache.keys():
-                cache[code] += 1
-            total_size += size
-            counter += 1
+        line_count += 1
+        try:
+            # Parse line components
+            parts = line.split()
+            if len(parts) < 7:
+                continue
+            status_code = parts[-2]
+            file_size = int(parts[-1])
 
-        if counter == 10:
-            counter = 0
-            print('File size: {}'.format(total_size))
-            for key, value in sorted(cache.items()):
-                if value != 0:
-                    print('{}: {}'.format(key, value))
+            # Update metrics
+            total_file_size += file_size
+            if status_code in valid_status_codes:
+                if status_code not in status_code_counts:
+                    status_code_counts[status_code] = 0
+                status_code_counts[status_code] += 1
+        except (ValueError, IndexError):
+            # Skip lines that are malformed
+            continue
 
-except Exception as err:
-    pass
+        # Print stats every 10 lines
+        if line_count % 10 == 0:
+            print_stats()
 
-finally:
-    print('File size: {}'.format(total_size))
-    for key, value in sorted(cache.items()):
-        if value != 0:
-            print('{}: {}'.format(key, value))
-
+except KeyboardInterrupt:
+    # Print final stats on keyboard interruption
+    print_stats()
+    raise
